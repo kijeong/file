@@ -4,6 +4,7 @@
 Python bindings for libmagic
 '''
 
+import os
 import ctypes
 
 from collections import namedtuple
@@ -17,7 +18,18 @@ def _init():
     Loads the shared library through ctypes and returns a library
     L{ctypes.CDLL} instance
     """
-    return ctypes.cdll.LoadLibrary(find_library('magic'))
+    def get_magic_dll_name():
+        dll_name = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libmagic.so')
+        if os.path.exists(dll_name):
+            return dll_name
+
+        dll_name = find_library('magic')
+        if dll_name:
+            return dll_name
+        
+        raise EnvironmentError('Failed to find libmagic.')
+
+    return ctypes.cdll.LoadLibrary(get_magic_dll_name())
 
 _libraries = {}
 _libraries['magic'] = _init()
