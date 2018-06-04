@@ -5,6 +5,7 @@ Python bindings for libmagic
 '''
 
 import os
+import sys
 import ctypes
 
 from collections import namedtuple
@@ -19,7 +20,16 @@ def _init():
     L{ctypes.CDLL} instance
     """
     def get_magic_dll_name():
-        dll_name = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libmagic.so')
+        if sys.platform.startswith('win'):
+            ext = ".dll"
+        elif sys.platform.startswith('darwin'):
+            ext = ".dylib"
+        elif sys.platform.startswith('linux'):
+            ext = ".so"
+        else:
+            raise EnvironmentError('Please check support platform. [{0}]'.format(sys.platform))
+        dll_name = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libmagic' + ext)
+
         if os.path.exists(dll_name):
             return dll_name
 
